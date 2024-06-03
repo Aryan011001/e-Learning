@@ -1,16 +1,17 @@
-import express from 'express';
-import { myProfile, register } from '../controllers/user.js';
-import { verifyUser } from '../controllers/user.js';
-import { loginUser } from '../controllers/user.js';
-import { isAUth } from '../middlewares/isAuth.js';
+import express from "express";
+import {
+  loginUser,
+  myProfile,
+  register,
+  verifyUser,
+} from "../controllers/user.js";
+import { isAuth } from "../middlewares/isAuth.js";
 
 const router = express.Router();
-
 
 router.post("/user/register", register);
 router.post("/user/verify", verifyUser);
 router.post("/user/login", loginUser);
-router.get("/user/me", isAUth, myProfile);
+router.get("/user/me", isAuth, myProfile);
 
-
-export default router
+export default router;
