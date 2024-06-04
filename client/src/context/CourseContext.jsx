@@ -46,6 +46,8 @@ export const CourseContextProvider = ({ children }) => {
         fetchCourses();
         fetchMyCourse();
     }, []);
+
+    
     return (
         <CourseContext.Provider
             value={{
