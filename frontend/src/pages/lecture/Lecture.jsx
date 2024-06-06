@@ -117,15 +117,60 @@ const Lecture = ({ user }) => {
     }
   };
 
+  const [completed, setCompleted] = useState("");
+  const [completedLecture, setCompletedLecture] = useState("");
+  const [lectureLength, setLectureLength] = useState("");
+  const [progress, setProgress] = useState([]);
+
+  async function fetchProgress() {
+
+    try {
+      const { data } = await axios.get(`${server}/api/progress?course=${params.id}`, {
+        headers: {
+          token: localStorage.getItem("token")
+        },
+      });
+      setCompleted(data.courseProgressPercentage);
+      setCompleted(data.completedLecture);
+      setLectureLength(data.allLectures);
+      setProgress(data.progress);
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const addProgress = async (id) => {
+    try {
+      const { data } = await axios.post(`${server}/api/progress?course=${params.id}&lectureId=${id}`, {},
+        {
+          headers: {
+            token: localStorage.getItem("token"),
+          },
+        }
+      );
+      console.log(data.message);
+      fetchProgress();
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   useEffect(() => {
     fetchLectures();
+    fetchProgress();
   }, []);
+
   return (
     <>
       {loading ? (
         <Loading />
       ) : (
         <>
+          <div className="progress">
+            Lecture Completed: {completedLecture} out of {lectureLength} <br />
+            <progress value={completed
+            } max={100} ></progress>{completed} %
+          </div>
           <div className="lecture-page">
             <div className="left">
               {lecLoading ? (
@@ -142,6 +187,7 @@ const Lecture = ({ user }) => {
                         disablePictureInPicture
                         disableRemotePlayback
                         autoPlay
+                        onEnded={() => addProgress(lecture._id)}
                       ></video>
                       <h1>{lecture.title}</h1>
                       <h3>{lecture.description}</h3>
@@ -212,11 +258,10 @@ const Lecture = ({ user }) => {
                     <div
                       onClick={() => fetchLecture(e._id)}
                       key={i}
-                      className={`lecture-number ${
-                        lecture._id === e._id && "active"
-                      }`}
+                      className={`lecture-number ${lecture._id === e._id && "active"
+                        }`}
                     >
-                      {i + 1}. {e.title}
+                      {i + 1}. {e.title} {progress && progress[0].completedLectures.includes(e._id) && "✓"}
                     </div>
                     {user && user.role === "admin" && (
                       <button
